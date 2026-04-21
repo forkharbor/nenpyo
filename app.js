@@ -609,6 +609,16 @@ function closeMvPicker() {
     .forEach(p => p.classList.remove('open'));
 }
 
+// ── 月ヘッダーのsticky top をページヘッダー高さに合わせる ────────────
+function updateStickyTop() {
+  const h = document.querySelector('header').offsetHeight;
+  document.querySelectorAll('thead th').forEach(th => {
+    th.style.top = h + 'px';
+  });
+}
+updateStickyTop();
+window.addEventListener('resize', updateStickyTop);
+
 // ── スクロールヒント ──────────────────────────────────────────────
 (function () {
   const wrap = document.querySelector('.table-wrap');
