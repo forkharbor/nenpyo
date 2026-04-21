@@ -1,0 +1,436 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0f1117;
+  color: #e2e8f0;
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #0f1117;
+  border-bottom: 1px solid #1e2535;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+header h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #f0f4ff;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.legend {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Table wrapper ── */
+.table-wrap {
+  overflow-x: auto;
+  padding: 0 16px 24px;
+}
+
+table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+
+/* ── Header row ── */
+thead tr {
+  background: #161b27;
+}
+
+thead th {
+  padding: 10px 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7a8aaa;
+  text-align: center;
+  border-bottom: 2px solid #1e2535;
+  white-space: nowrap;
+}
+
+.col-year { width: 60px; }
+.col-age  { width: 54px; }
+
+/* 月列は残り幅を均等に使う */
+thead th:nth-child(n+3),
+tbody td:nth-child(n+3) {
+  min-width: 60px;
+}
+
+/* ── Body rows ── */
+tbody tr {
+  border-bottom: 1px solid #1a2030;
+  transition: background 0.15s;
+}
+
+tbody tr:hover {
+  background: #161d2e;
+}
+
+tbody td {
+  padding: 8px 6px;
+  vertical-align: top;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+tbody td.col-year {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+tbody td.col-age {
+  font-size: 0.82rem;
+  color: #4a5568;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* ── Badges ── */
+.badge {
+  display: block;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 2px 0;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.badge.school {
+  background: #1a3a5c;
+  color: #60b4ff;
+  border: 1px solid #2a5a8c;
+}
+
+.badge.work {
+  background: #1a3d2b;
+  color: #4ade80;
+  border: 1px solid #2a6040;
+}
+
+.badge.home {
+  background: #3d2a1a;
+  color: #fb923c;
+  border: 1px solid #6b4020;
+}
+
+.badge.event {
+  background: #2d1a3d;
+  color: #c084fc;
+  border: 1px solid #5a2a7a;
+}
+
+/* ── Drag & Drop ── */
+.badge[draggable=true] {
+  cursor: grab;
+}
+.badge.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+tbody td.drag-over {
+  background: #1e3050 !important;
+  outline: 2px dashed #4a7ab5;
+}
+
+/* ── Cell hover ── */
+tbody td:not(.col-year):not(.col-age) {
+  cursor: pointer;
+}
+tbody td:not(.col-year):not(.col-age):hover {
+  background: #1e2a40;
+  outline: 1px solid #2a4060;
+}
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+}
+
+/* ── Modal ── */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  background: #161b27;
+  border: 1px solid #2a3550;
+  border-radius: 12px;
+  width: min(480px, 92vw);
+  padding: 20px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+
+.modal.open,
+.modal.open ~ .modal-overlay,
+.modal-overlay:has(~ .modal.open) {
+  display: block;
+}
+
+/* overlayはmodalより前にいるので別途 */
+.modal-overlay:not([style]) {
+  display: none;
+}
+
+#modal.open { display: block; }
+#modal-overlay:has(+ * + #modal.open),
+#modal.open + #modal-overlay { display: block; }
+
+/* overlayとmodalを同時に表示するためJSで制御 */
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+}
+.modal-close:hover { color: #e2e8f0; }
+
+.modal-items {
+  min-height: 40px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.no-items {
+  color: #4a5568;
+  font-size: 0.82rem;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.modal-item-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.modal-item-row .badge {
+  flex: 1;
+  min-width: 0;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.icon-btn:hover { opacity: 1; }
+.icon-btn.del:hover { opacity: 1; filter: brightness(1.4); }
+
+.edit-input {
+  flex: 1;
+  background: #0f1117;
+  border: 1px solid #2a3550;
+  border-radius: 4px;
+  color: #e2e8f0;
+  padding: 4px 8px;
+  font-size: 0.82rem;
+  min-width: 0;
+}
+
+.edit-select {
+  background: #0f1117;
+  border: 1px solid #2a3550;
+  border-radius: 4px;
+  color: #e2e8f0;
+  padding: 4px 6px;
+  font-size: 0.78rem;
+}
+
+/* ── Modal form ── */
+.modal-form {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid #1e2535;
+  padding-top: 12px;
+}
+
+.modal-form select {
+  background: #0f1117;
+  border: 1px solid #2a3550;
+  border-radius: 6px;
+  color: #e2e8f0;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.modal-form input {
+  flex: 1;
+  background: #0f1117;
+  border: 1px solid #2a3550;
+  border-radius: 6px;
+  color: #e2e8f0;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  min-width: 0;
+}
+.modal-form input::placeholder { color: #4a5568; }
+.modal-form input:focus,
+.edit-input:focus {
+  outline: none;
+  border-color: #4a6fa5;
+}
+
+.modal-form button[type=submit] {
+  background: #2a4a7a;
+  border: none;
+  border-radius: 6px;
+  color: #e2e8f0;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.modal-form button[type=submit]:hover { background: #3a5a9a; }
+
+/* ── 会社期間ボタン ── */
+.btn-header {
+  margin-left: auto;
+  padding: 5px 13px;
+  font-size: 0.8rem;
+  background: #1e2535;
+  border: 1px solid #2a3550;
+  border-radius: 6px;
+  color: #94a3b8;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-header:hover { background: #2a3550; color: #e2e8f0; }
+
+/* ── 会社期間セル ── */
+tbody td.in-period {
+  background: var(--pb, transparent) !important;
+}
+tbody td.in-period:not(.col-year):not(.col-age):hover {
+  background: var(--pb, transparent) !important;
+  filter: brightness(1.5);
+}
+tbody td.period-start {
+  border-left: 3px solid var(--pl, transparent) !important;
+}
+
+/* ── 期間モーダル内 ── */
+.period-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.period-text {
+  flex: 1;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.period-form {
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+.period-range {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.period-range input[type="number"] {
+  width: 90px;
+  flex: none;
+}
+.period-range select {
+  width: 72px;
+  flex: none;
+}
+.range-sep {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+.period-colors {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.color-swatch:hover { transform: scale(1.2); }
+.color-swatch.active { border-color: #e2e8f0; }
+
+/* ── Scrollbar ── */
+.table-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+.table-wrap::-webkit-scrollbar-track {
+  background: #0f1117;
+}
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #2a3550;
+  border-radius: 3px;
+}

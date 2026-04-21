@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>自分年表</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>自分年表</h1>
+    <div class="legend">
+      <span class="badge school">学校</span>
+      <span class="badge work">仕事</span>
+      <span class="badge home">住まい</span>
+      <span class="badge event">出来事</span>
+    </div>
+    <button id="btn-period" class="btn-header">会社期間</button>
+  </header>
+
+  <div class="table-wrap">
+    <table id="timeline">
+      <thead>
+        <tr>
+          <th class="col-year">西暦</th>
+          <th>4月</th><th>5月</th><th>6月</th><th>7月</th><th>8月</th><th>9月</th>
+          <th>10月</th><th>11月</th><th class="col-age">年齢</th><th>12月</th><th>1月</th><th>2月</th><th>3月</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- モーダル -->
+  <div id="modal-overlay" class="modal-overlay"></div>
+  <div id="modal" class="modal">
+    <div class="modal-header">
+      <span id="modal-title"></span>
+      <button id="modal-close" class="modal-close">✕</button>
+    </div>
+    <div id="modal-items" class="modal-items"></div>
+    <form id="modal-form" class="modal-form">
+      <select id="form-category">
+        <option value="school">学校</option>
+        <option value="work">仕事</option>
+        <option value="home">住まい</option>
+        <option value="event" selected>出来事</option>
+      </select>
+      <input id="form-text" type="text" placeholder="内容を入力..." autocomplete="off" required>
+      <button type="submit">追加</button>
+    </form>
+  </div>
+
+  <!-- 会社期間モーダル -->
+  <div id="period-modal-overlay" class="modal-overlay"></div>
+  <div id="period-modal" class="modal">
+    <div class="modal-header">
+      <span>会社期間の管理</span>
+      <button id="period-modal-close" class="modal-close">✕</button>
+    </div>
+    <div id="period-list" class="modal-items"></div>
+    <form id="period-form" class="modal-form period-form">
+      <input id="pf-label" type="text" placeholder="会社名" required>
+      <div class="period-range">
+        <input id="pf-sy" type="number" placeholder="開始年" min="1900" max="2100" required>
+        <select id="pf-sm"></select>
+        <span class="range-sep">〜</span>
+        <input id="pf-ey" type="number" placeholder="終了年（空欄=現在）" min="1900" max="2100">
+        <select id="pf-em"></select>
+      </div>
+      <div id="period-colors" class="period-colors"></div>
+      <button type="submit">追加</button>
+    </form>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
