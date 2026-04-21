@@ -24,20 +24,28 @@ const DEFAULT_DATA = [
 ];
 
 // ════════════════════════════════════════════════
-// データ管理（localStorage）
+// Firebase 初期化
 // ════════════════════════════════════════════════
-const STORAGE_KEY = 'nenpy_data';
+const firebaseConfig = {
+  apiKey: "AIzaSyCfvqQWLB8NJqmaH0k2G0wPcbJJjz2Vu4A",
+  authDomain: "kaimemo-58bad.firebaseapp.com",
+  projectId: "kaimemo-58bad",
+  storageBucket: "kaimemo-58bad.firebasestorage.app",
+  messagingSenderId: "308069117698",
+  appId: "1:308069117698:web:c61a57853abb7e8ffb1c1b"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const docRef = db.collection('nenpy').doc('data');
 
-function loadData() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : DEFAULT_DATA.map((d, i) => ({ ...d, id: i }));
-}
-
+// ════════════════════════════════════════════════
+// データ管理（Firestore）
+// ════════════════════════════════════════════════
 function saveData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  docRef.set({ items: data, periods: PERIODS });
 }
 
-let DATA = loadData();
+let DATA = [];
 
 function nextId() {
   return DATA.length === 0 ? 0 : Math.max(...DATA.map(d => d.id ?? 0)) + 1;
@@ -219,18 +227,13 @@ document.getElementById('modal-form').addEventListener('submit', e => {
 // ════════════════════════════════════════════════
 // 会社期間データ管理
 // ════════════════════════════════════════════════
-const PERIODS_KEY = 'nenpy_periods';
 const PERIOD_PALETTE = ['#4ade80','#60b4ff','#fb923c','#c084fc','#f472b6','#facc15','#34d399','#f87171'];
 
-function loadPeriods() {
-  const s = localStorage.getItem(PERIODS_KEY);
-  return s ? JSON.parse(s) : [];
-}
 function savePeriods() {
-  localStorage.setItem(PERIODS_KEY, JSON.stringify(PERIODS));
+  docRef.set({ items: DATA, periods: PERIODS });
 }
 
-let PERIODS = loadPeriods();
+let PERIODS = [];
 let selectedPeriodColor = PERIOD_PALETTE[0];
 
 function toLinear(year, month) {
@@ -472,7 +475,22 @@ initMonthSelect('pf-em');
 document.getElementById('pf-em').disabled = true;
 initPeriodColorPicker();
 
-buildTable();
+// ── Firestore リアルタイム同期 ──────────────────────────────────────
+document.getElementById('tbody').innerHTML =
+  '<tr><td colspan="14" style="text-align:center;padding:40px;color:#4a5568">読み込み中…</td></tr>';
+
+docRef.onSnapshot(snap => {
+  if (snap.exists) {
+    DATA    = snap.data().items   || [];
+    PERIODS = snap.data().periods || [];
+  } else {
+    // 初回のみデフォルトデータを書き込む
+    DATA    = DEFAULT_DATA.map((d, i) => ({ ...d, id: i }));
+    PERIODS = [];
+    docRef.set({ items: DATA, periods: PERIODS });
+  }
+  buildTable();
+});
 
 // ── スクロールヒント ──────────────────────────────────────────────
 (function () {
