@@ -473,3 +473,16 @@ document.getElementById('pf-em').disabled = true;
 initPeriodColorPicker();
 
 buildTable();
+
+// ── スクロールヒント ──────────────────────────────────────────────
+(function () {
+  const wrap = document.querySelector('.table-wrap');
+  const hint = document.querySelector('.scroll-hint-wrap');
+
+  function checkScroll() {
+    const atEnd = wrap.scrollLeft + wrap.clientWidth >= wrap.scrollWidth - 4;
+    hint.classList.toggle('scrolled-end', atEnd);
+  }
+  wrap.addEventListener('scroll', checkScroll, { passive: true });
+  checkScroll();
+})();
