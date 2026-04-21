@@ -36,6 +36,8 @@ header h1 {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  padding: 10px 24px;
+  border-bottom: 1px solid #1e2535;
 }
 
 /* ── Table wrapper ── */
@@ -57,7 +59,7 @@ thead tr {
 
 thead th {
   position: sticky;
-  top: 60px;
+  top: 0;
   z-index: 10;
   background: #161b27;
   padding: 10px 8px;
@@ -562,6 +564,9 @@ tbody td.period-start {
   /* テーブルを非表示にして縦ビューに切り替え */
   .scroll-hint-wrap { display: none !important; }
   .mobile-view { display: block; }
+
+  /* 凡例を非表示 */
+  .legend { display: none; }
 
   /* ── Header ── */
   header {
