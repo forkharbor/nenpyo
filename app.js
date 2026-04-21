@@ -475,6 +475,19 @@ initMonthSelect('pf-em');
 document.getElementById('pf-em').disabled = true;
 initPeriodColorPicker();
 
+// ── localStorageからの一回限りの移行 ──────────────────────────────
+const MIGRATED_KEY = 'nenpy_migrated';
+if (!localStorage.getItem(MIGRATED_KEY)) {
+  const savedItems   = localStorage.getItem('nenpy_data');
+  const savedPeriods = localStorage.getItem('nenpy_periods');
+  if (savedItems) {
+    const migrateItems   = JSON.parse(savedItems);
+    const migratePeriods = savedPeriods ? JSON.parse(savedPeriods) : [];
+    docRef.set({ items: migrateItems, periods: migratePeriods });
+  }
+  localStorage.setItem(MIGRATED_KEY, '1');
+}
+
 // ── Firestore リアルタイム同期 ──────────────────────────────────────
 document.getElementById('tbody').innerHTML =
   '<tr><td colspan="14" style="text-align:center;padding:40px;color:#4a5568">読み込み中…</td></tr>';
@@ -484,7 +497,6 @@ docRef.onSnapshot(snap => {
     DATA    = snap.data().items   || [];
     PERIODS = snap.data().periods || [];
   } else {
-    // 初回のみデフォルトデータを書き込む
     DATA    = DEFAULT_DATA.map((d, i) => ({ ...d, id: i }));
     PERIODS = [];
     docRef.set({ items: DATA, periods: PERIODS });
