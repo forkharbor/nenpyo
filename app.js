@@ -437,6 +437,8 @@ function buildTable() {
 
     tbody.appendChild(tr);
   }
+
+  buildMobileView();
 }
 
 // モーダル外クリックで閉じる
@@ -503,6 +505,109 @@ docRef.onSnapshot(snap => {
   }
   buildTable();
 });
+
+// ════════════════════════════════════════════════
+// モバイル縦ビュー
+// ════════════════════════════════════════════════
+function buildMobileView() {
+  const minY = 1991;
+  const maxY = 2030;
+  const MONTH_ORDER = [4,5,6,7,8,9,10,11,12,1,2,3];
+  const container = document.getElementById('mobile-view');
+  container.innerHTML = '';
+
+  for (let y = minY; y <= maxY; y++) {
+    const yearEvents = DATA.filter(d => fiscalYear(d) === y);
+    const isEmpty = yearEvents.length === 0;
+
+    const block = document.createElement('div');
+    block.className = 'mv-year-block' + (isEmpty ? ' empty' : '');
+
+    // 年ヘッダー
+    const header = document.createElement('div');
+    header.className = 'mv-year-header';
+
+    const yearSpan = document.createElement('span');
+    yearSpan.textContent = `${y}年`;
+
+    const ageSpan = document.createElement('span');
+    ageSpan.className = 'mv-age-label';
+    ageSpan.textContent = `${ageAt(y)}歳`;
+
+    const addBtn = document.createElement('button');
+    addBtn.className = 'mv-add-btn';
+    addBtn.title = '追加';
+    addBtn.textContent = '+';
+    addBtn.onclick = e => { e.stopPropagation(); toggleMvPicker(y); };
+
+    header.append(yearSpan, ageSpan, addBtn);
+    block.appendChild(header);
+
+    // 月ピッカー
+    const picker = document.createElement('div');
+    picker.className = 'mv-month-picker';
+    picker.id = `mv-picker-${y}`;
+    MONTH_ORDER.forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'mv-month-btn';
+      btn.textContent = m + '月';
+      btn.onclick = () => { openModal(y, monthIndex(m)); closeMvPicker(); };
+      picker.appendChild(btn);
+    });
+    block.appendChild(picker);
+
+    // イベント一覧
+    if (!isEmpty) {
+      const period = getCellPeriod(y, 0);
+      const eventsDiv = document.createElement('div');
+      eventsDiv.className = 'mv-events';
+      if (period) eventsDiv.style.borderLeftColor = hexToRgba(period.color, 0.6);
+
+      MONTH_ORDER.forEach(m => {
+        const monthEvents = yearEvents.filter(d => d.month === m);
+        if (!monthEvents.length) return;
+
+        const row = document.createElement('div');
+        row.className = 'mv-month-row';
+        row.onclick = () => openModal(y, monthIndex(m));
+
+        const monthLabel = document.createElement('span');
+        monthLabel.className = 'mv-month-label';
+        monthLabel.textContent = m + '月';
+
+        const badgesDiv = document.createElement('div');
+        badgesDiv.className = 'mv-badges';
+        monthEvents.forEach(item => {
+          const badge = document.createElement('span');
+          badge.className = `badge ${item.category}`;
+          badge.textContent = item.text;
+          badge.onclick = e => { e.stopPropagation(); openModalEditItem(item); };
+          badgesDiv.appendChild(badge);
+        });
+
+        row.append(monthLabel, badgesDiv);
+        eventsDiv.appendChild(row);
+      });
+
+      block.appendChild(eventsDiv);
+    }
+
+    container.appendChild(block);
+  }
+}
+
+function toggleMvPicker(y) {
+  const picker = document.getElementById(`mv-picker-${y}`);
+  if (!picker) return;
+  const isOpen = picker.classList.contains('open');
+  closeMvPicker();
+  if (!isOpen) picker.classList.add('open');
+}
+
+function closeMvPicker() {
+  document.querySelectorAll('.mv-month-picker.open')
+    .forEach(p => p.classList.remove('open'));
+}
 
 // ── スクロールヒント ──────────────────────────────────────────────
 (function () {

@@ -56,6 +56,10 @@ thead tr {
 }
 
 thead th {
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+  background: #161b27;
   padding: 10px 8px;
   font-size: 0.78rem;
   font-weight: 600;
@@ -435,6 +439,103 @@ tbody td.period-start {
   border-radius: 3px;
 }
 
+/* ── モバイル縦ビュー ── */
+.mobile-view { display: none; padding: 0 12px 40px; }
+
+.mv-year-block { margin-bottom: 2px; }
+
+.mv-year-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 6px;
+  border-bottom: 1px solid #1e2535;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.mv-year-block.empty .mv-year-header {
+  font-size: 0.7rem;
+  color: #2a3550;
+  border-bottom-color: #161d2e;
+  padding: 3px 0;
+}
+.mv-age-label {
+  font-size: 0.72rem;
+  color: #4a5568;
+  font-weight: normal;
+}
+.mv-add-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #2a3550;
+  border-radius: 50%;
+  color: #4a5568;
+  width: 26px; height: 26px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.mv-add-btn:active { background: #1e2535; color: #e2e8f0; }
+
+.mv-month-picker {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 0 4px;
+}
+.mv-month-picker.open { display: flex; }
+
+.mv-month-btn {
+  padding: 5px 11px;
+  background: #161b27;
+  border: 1px solid #2a3550;
+  border-radius: 12px;
+  color: #8899aa;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.mv-month-btn:active { background: #1e3050; color: #e2e8f0; }
+
+.mv-events {
+  padding: 6px 0 6px 10px;
+  border-left: 2px solid #1e2535;
+  margin: 4px 0 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.mv-month-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 4px 6px 4px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mv-month-row:active { background: #161d2e; }
+
+.mv-month-label {
+  font-size: 0.72rem;
+  color: #4a90d9;
+  font-weight: 600;
+  min-width: 28px;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+.mv-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
 /* ── スクロールヒント（右フェード） ── */
 .scroll-hint-wrap {
   position: relative;
@@ -457,6 +558,10 @@ tbody td.period-start {
    モバイル対応
 ══════════════════════════════════════ */
 @media (max-width: 640px) {
+
+  /* テーブルを非表示にして縦ビューに切り替え */
+  .scroll-hint-wrap { display: none !important; }
+  .mobile-view { display: block; }
 
   /* ── Header ── */
   header {
